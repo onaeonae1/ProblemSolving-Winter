@@ -131,12 +131,6 @@ int main()
             {
                 cout << (char)(a + 'a');
             }
-
-            for(int i = 0; i < 26; i++)
-            {
-                if(visited[i] == 0) cout << (char)(i+'a');
-            }
-
             cout << endl;
         }
     }
