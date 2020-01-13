@@ -4,24 +4,22 @@
 
 using namespace std;
 
-int dfs(vector<int>& ret, vector<int>& path, vector<int>& value, vector<vector<pair<int, int> > >& adj, int cur) {
-    if(ret[cur] != -1) return ret[cur];
+int dfs(vector<int>& cnt, vector<int>& ret, vector<int>& path, vector<int>& value, vector<vector<pair<int, int> > >& adj, int cur) {
+    if(ret[cur] != -1) return cnt[cur];
     int next, temp;
-    int cnt = 0;
     ret[cur] = 0;
     for (int i = 0; i < adj[cur].size(); ++i) {
         next = adj[cur][i].first;
-        temp = dfs(ret, path, value, adj, next);
+        temp = dfs(cnt, ret, path, value, adj, next);
         if( ret[cur] < ret[next] - adj[cur][i].second ) {
             ret[cur] = ret[next] - adj[cur][i].second;
             path[cur] = next;
-            cout<<"cur: "<<cur<<", cnt: "<<cnt<<endl;
-            cnt = temp;
+            cnt[cur] = temp;
+            
         }
     }
     ret[cur] += value[cur];
-    cnt += 1;
-    return cnt;
+    return ++cnt[cur];
 }
 
 int main() {
@@ -42,8 +40,9 @@ int main() {
         }
         vector<int> ret(N+1, -1);
         vector<int> path(N+1, -1);
-        int cnt = dfs(ret, path, value, adj, 1);
-        cout<<ret[1]<<' '<<cnt<<endl;
+        vector<int> cnt(N+1, 0);
+        int cnt2 = dfs(cnt, ret, path, value, adj, 1);
+        cout<<ret[1]<<' '<<cnt2<<endl;
         for ( int i = 1; i != -1; ) {
             cout<<i<<' ';
             i = path[i];
