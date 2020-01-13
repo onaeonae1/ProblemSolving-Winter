@@ -26,12 +26,6 @@ void dfs(int here, int value, int cost)
         int there = cave[here][i].first;
         dfs(there, value+treasure[here], cave[here][i].second);
     }
-    // for(int there = 0; there < cave.size(); there++)
-    // {
-    //     if(cave[here][there] > -1) 
-    //         dfs(there, value + treasure[here], cave[here][there].second);
-
-    // }
     if(value-cost > best_value) best = route;
     route.pop();
 }
