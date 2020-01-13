@@ -4,6 +4,7 @@
  * DATE: 2020-01-12 
  * AUTHOR: sunmon
  * TIP:
+ * 1. 인접리스트 쓰기
 **/
 
 #include <iostream>
@@ -12,20 +13,66 @@
 #include <algorithm>
 using namespace std;
 
-stack<int> best;
-stack<int> route;
+stack<int> best, route;
+vector<vector<pair<int,int> > >cave;
+vector<int> treasure;
+int best_value;
+
 void dfs(int here, int value, int cost)
 {
-route.push(here);
+    route.push(here);
+    for(int i = 0; i<cave[here].size(); i++)
+    {
+        int there = cave[here][i].first;
+        dfs(there, value+treasure[here], cave[here][i].second);
+    }
+    // for(int there = 0; there < cave.size(); there++)
+    // {
+    //     if(cave[here][there] > -1) 
+    //         dfs(there, value + treasure[here], cave[here][there].second);
 
-for(int i=here+1; i < cave.size(); i++)
-  if(cave[here][there] > 0) dfs(there, value + treasure[here], cave[here][there]);
+    // }
+    if(value-cost > best_value) best = route;
+    route.pop();
+}
 
-if(value-cost > best_value) best = route;
-route.pop();
+void dfsAll(int N)
+{
+    best=stack<int>();
+    route=stack<int>();
+    cave = vector<vector<pair<int,int> >>(N, vector<pair<int,int>>());
+
+    dfs(0, treasure[0], 0);
 }
 int main()
 {
-   
-    
+    int testcase;
+    cin >> testcase;
+    while(testcase--)
+    {
+        int N, E;
+        cin >> N >> E;
+        treasure = vector<int>(N,-1);
+        for(int i = 0; i<N; i++)
+            cin >> treasure[i];
+        
+        for(int i = 0; i<E; i++)
+        {
+            int from, to, cost;
+            cin >> from >> to >> cost;
+            cave[from-1].push_back({to-1, cost});
+        }
+
+        dfsAll(N);
+        cout << best_value << best.size();
+        for(int i = 0; i<best.size(); i++)
+        {
+            cout << best.top() << " ";
+            best.pop();
+        }
+
+        cout << endl;
+
+    }
+
 }
