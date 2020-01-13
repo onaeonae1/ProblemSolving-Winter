@@ -1,0 +1,19 @@
+/**
+ * NAME: 고대 동굴 탐사
+ * LINK: https://www.acmicpc.net/problem/10273
+ * DATE: 2020-01-12 
+ * AUTHOR: sunmon
+ * TIP:
+**/
+
+#include <iostream>
+#include <vector>
+#include <stack>
+#include <algorithm>
+using namespace std;
+
+int main()
+{
+   
+    
+}
