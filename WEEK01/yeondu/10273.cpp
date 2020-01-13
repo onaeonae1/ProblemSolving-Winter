@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h>
 #include <vector>
 #include <utility>
 
@@ -29,24 +30,24 @@ int main() {
         vector<int> value(N+1);
         int temp;
         for (int i = 1; i <= N; ++i) {
-            cin>>temp;
+            scanf("%d", &temp);
             value[i] = temp;
         }
         vector<vector<pair<int, int> > > adj(N+1);
         int a, b, c;
         for (int i = 0; i < E; ++i) {
-            cin>>a>>b>>c;
+            scanf("%d %d %d", &a, &b, &c);
             adj[a].push_back(make_pair(b, c));
         }
         vector<int> ret(N+1, -1);
         vector<int> path(N+1, -1);
         vector<int> cnt(N+1, 0);
         int cnt2 = dfs(cnt, ret, path, value, adj, 1);
-        cout<<ret[1]<<' '<<cnt2<<endl;
+        printf("%d %d\n", ret[1], cnt2);
         for ( int i = 1; i != -1; ) {
-            cout<<i<<' ';
+            printf("%d ", i);
             i = path[i];
         }
-        cout<<endl;
+        printf("\n");
     }
 }
