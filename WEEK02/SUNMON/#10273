@@ -12,6 +12,18 @@
 #include <algorithm>
 using namespace std;
 
+stack<int> best;
+stack<int> route;
+void dfs(int here, int value, int cost)
+{
+route.push(here);
+
+for(int i=here+1; i < cave.size(); i++)
+  if(cave[here][there] > 0) dfs(there, value + treasure[here], cave[here][there]);
+
+if(value-cost > best_value) best = route;
+route.pop();
+}
 int main()
 {
    
