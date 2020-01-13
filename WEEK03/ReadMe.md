@@ -6,9 +6,9 @@
 
 #### 복습
 
-2- SAT : https://www.acmicpc.net/problem/4230
+2- SAT / 사랑과 전쟁 : https://www.acmicpc.net/problem/4230
 
 #### 예습
 
-BFS : https://swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AV5LnipaDvwDFAXc&
+BFS / 영준이의 진짜 BFS: https://swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AV5LnipaDvwDFAXc&
 
