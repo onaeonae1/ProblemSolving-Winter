@@ -7,6 +7,7 @@
  * TIP:
  * 1. 인접리스트 쓰기
  * 2. 초기화 잊지말것!!!
+ * 3. 시간 초과 -> dp로 해결
 **/
 
 #include <iostream>
@@ -16,39 +17,38 @@
 #include <string>
 using namespace std;
 
-stack<int> best, route;                 //최대 이익을 얻을 수 있는 경로, 일반 탐색하는 경로
-vector<vector<pair<int,int> > >cave;    //인접리스트
-vector<int> treasure;                   //동굴별 보물의 가치
-int best_value;                         //최대 이익
+vector<vector<pair<int,int> > >cave;    //인접리스트. cave[n] -> (node, cost) : 동굴 n에 연결된 동굴과 이동 비용 저장
+vector<int> treasure;                   //동굴별 이익
+vector<pair<int,int>>cache;             //메모이제이션. cache[n] -> (node, cost) : n번 동굴에 방문 시 <다음에 방문할 노드, 현재 노드에서 얻을 수 있는 최대가치> 저장
 
-//최대 이익을 얻는 best경로 저장
-//dfs(현재 동굴, 현재까지의 가치, 현재까지 소요경비)
-void dfs(int here, int value, int cost)
+//here를 방문했을 때 얻을 수 있는 최대 이익(보물-소요경비) 리턴
+int dfs(int here)
 {
-    route.push(here);
+    //메모이제이션
+    pair<int,int>& ret = cache[here];
+    if(ret.first != -1) return ret.second;
+    ret.second = treasure[here];
+
+    //연결된 동굴 순차적으로 탐색
     for(int i = 0; i<cave[here].size(); i++)
     {
-        pair<int,int>& there = cave[here][i];
-        dfs(there.first, value+treasure[there.first], cost+there.second);
+        int there = cave[here][i].first;
+        int value = dfs(there) + treasure[here] - cave[here][i].second;
+        if(value > ret.second)
+        {
+            ret.first = there;
+            ret.second = value;
+        }
     }
-
-    if(value-cost > best_value)
-    {
-        best = route;
-        best_value = value-cost;
-    }
-    route.pop();
+    return ret.second;
 }
 
-//전체 동굴 탐색
-void dfsAll()
+//route에 최대 이익을 내는 경로 저장
+void tracing(int here, vector<int>& route)
 {
-    //벡터, 전역변수 초기화
-    best=stack<int>();
-    route=stack<int>();
-    best_value = -987654321;
-
-    dfs(0, treasure[0], 0);
+    if(here == -1) return;
+    route.push_back(here);
+    tracing(cache[here].first, route);
 }
 
 int main()
@@ -61,10 +61,15 @@ int main()
         //동굴 정보 입력받기
         int N, E;
         cin >> N >> E;
+        
+        //변수 초기화
         cave = vector<vector<pair<int,int> >>(N, vector<pair<int,int>>());
+        cache = vector<pair<int,int> >(cave.size(), {-1,-1});
         treasure = vector<int>(N,-1);
-        for(int i = 0; i<N; i++) 
-            cin >> treasure[i];
+
+        for(int i = 0; i<N; i++) cin >> treasure[i];
+
+        
         for(int i = 0; i<E; i++)
         {
             int from, to, cost; //현재 위치, 이동할 동굴, 이동 비용
@@ -72,18 +77,13 @@ int main()
             cave[from-1].push_back({to-1, cost});
         }
 
-        dfsAll();
+        int profit = dfs(0);
+        vector<int> route;  //정답
+        tracing(0,route);
 
-        //정답 출력하기
-        cout << best_value << " " <<  best.size() << endl;
-        string r = "";
-        while(!best.empty())
-        {
-            int n = best.top()+1;
-            r += std::to_string(n);
-            best.pop();
-        }
-        cout << r << endl;
+        cout << profit << " " << route.size() << endl;
+        for(auto& r: route) cout << r+1 << " ";
+        cout << endl;
     }
 
 }
