@@ -59,7 +59,7 @@ int main()
     {
         //동굴 정보 입력받기
         int N, E;
-        cin >> N >> E;
+        scanf("%d %d", &N, &E);
         
         //변수 초기화
         cave = vector<vector<pair<int,int> >>(N, vector<pair<int,int>>());
@@ -82,4 +82,5 @@ int main()
         for(int& r:route) printf("%d ", r+1);
         printf("\n");
     }
+
 }
