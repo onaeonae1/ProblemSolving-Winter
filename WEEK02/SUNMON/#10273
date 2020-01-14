@@ -8,20 +8,18 @@
  * 1. 인접리스트 쓰기
  * 2. 초기화 잊지말것!!!
  * 3. 시간 초과 -> dp로 해결
+ * 4. 시간 초과 -> scanf printf로 바꿔보자..
 **/
 
 #include <iostream>
 #include <vector>
-#include <stack>
-#include <algorithm>
-#include <string>
 using namespace std;
 
 vector<vector<pair<int,int> > >cave;    //인접리스트. cave[n] -> (node, cost) : 동굴 n에 연결된 동굴과 이동 비용 저장
 vector<int> treasure;                   //동굴별 이익
 vector<pair<int,int>>cache;             //메모이제이션. cache[n] -> (node, cost) : n번 동굴에 방문 시 <다음에 방문할 노드, 현재 노드에서 얻을 수 있는 최대가치> 저장
 
-//here를 방문했을 때 얻을 수 있는 최대 이익(보물-소요경비) 리턴
+//here를 방문했을 때 얻을 수 있는 최대 이익 리턴
 int dfs(int here)
 {
     //메모이제이션
@@ -32,12 +30,13 @@ int dfs(int here)
     //연결된 동굴 순차적으로 탐색
     for(int i = 0; i<cave[here].size(); i++)
     {
-        int there = cave[here][i].first;
-        int value = dfs(there) + treasure[here] - cave[here][i].second;
-        if(value > ret.second)
+        int there = cave[here][i].first;    //이동할 다음 노드
+        int cost = cave[here][i].second;    //이동 비용
+        int profit = dfs(there) - cave[here][i].second + treasure[here];    //이동 후 이익
+        if(profit > ret.second)
         {
             ret.first = there;
-            ret.second = value;
+            ret.second = profit;
         }
     }
     return ret.second;
@@ -48,7 +47,7 @@ void tracing(int here, vector<int>& route)
 {
     if(here == -1) return;
     route.push_back(here);
-    tracing(cache[here].first, route);
+    tracing(cache[here].first,route);
 }
 
 int main()
@@ -67,23 +66,20 @@ int main()
         cache = vector<pair<int,int> >(cave.size(), {-1,-1});
         treasure = vector<int>(N,-1);
 
-        for(int i = 0; i<N; i++) cin >> treasure[i];
-
-        
+        for(int i = 0; i<N; i++) scanf("%d", &treasure[i]);
         for(int i = 0; i<E; i++)
         {
             int from, to, cost; //현재 위치, 이동할 동굴, 이동 비용
-            cin >> from >> to >> cost;
+            scanf("%d %d %d", &from, &to, &cost);
             cave[from-1].push_back({to-1, cost});
         }
 
+        vector<int> route;   //정답. 최대 이익을 내는 루트 저장.
         int profit = dfs(0);
-        vector<int> route;  //정답
         tracing(0,route);
 
-        cout << profit << " " << route.size() << endl;
-        for(auto& r: route) cout << r+1 << " ";
-        cout << endl;
+        printf("%d %d\n", profit, route.size());
+        for(int& r:route) printf("%d ", r+1);
+        printf("\n");
     }
-
 }
