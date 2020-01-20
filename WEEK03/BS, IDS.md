@@ -26,7 +26,7 @@
   
 #### 비교 표
 
-![img](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fk.kakaocdn.net%2Fdn%2FPvmqX%2FbtqzhqZ2O3O%2FlBWwSL4H1K977OJ1B5wmSK%2Fimg.png)
+![img](https://k.kakaocdn.net/dn/PvmqX/btqzhqZ2O3O/lBWwSL4H1K977OJ1B5wmSK/img.png)
 
 
 참고:
