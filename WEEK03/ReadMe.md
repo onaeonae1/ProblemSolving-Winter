@@ -13,7 +13,6 @@
 BFS / 영준이의 진짜 BFS: https://swexpertacademy.com/main/code/problem/problemDetail.do?contestProbId=AV5LnipaDvwDFAXc&
 
 
-* 추가 문제 *
 
-SCC - 
-도미노 : https://www.acmicpc.net/problem/4196
+**추가문제**
+SCC - 도미노 : https://www.acmicpc.net/problem/4196
