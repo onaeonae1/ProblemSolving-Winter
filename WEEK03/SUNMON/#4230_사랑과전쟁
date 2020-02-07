@@ -1,0 +1,197 @@
+/**
+ * @name 사랑과전쟁
+ * @link: https://www.acmicpc.net/problem/4230
+ * @date 2020-02-05
+ * @author sunmon
+ * TIP:
+ *  1. 2-SAT 문제
+ *  2. 철수 옆에 앉는 것을 TRUE로 가정.
+**/
+#include <iostream>
+#include <vector>
+#include <string>
+#include <stack>
+#include <algorithm>
+using namespace std;
+
+//함의그래프의 인접리스트 표현
+//인간 저장 순서 : 0w, !0w, 0h, !0h, 1w, !1w, 1h, !1h, 2w ...
+vector<vector<int> > adj;
+//불륜상대 그래프의 인접리스트 표현.
+//인간 저장 순서 : 0w, 0h, 1w, 1h, 2w, 2h ...
+vector<vector<int> > lovers;
+stack<int> unlabeled;
+vector<int> sccID, discovered;
+int sccCounter, nodeCounter;
+
+
+void printLovers()
+{
+    for(int i = 0; i<lovers.size(); i++)
+    {
+        cout << i << "- ";
+        for(int j = 0; j<lovers[i].size(); j++)
+            cout << lovers[i][j] << " ";
+        
+        cout << endl;
+    }
+}
+
+//함의그래프 만들기, n: 커플 수, m: 불륜 수
+void makeGraph(int n, int m)
+{
+    //전역변수 초기화
+    adj.clear();
+    adj.resize(4*n);    //n커플 * 남녀 * 참,거짓 2개
+    lovers.clear();
+    lovers.resize(2*n); //n커플 * 남녀
+
+    //불륜 인접리스트를 만든다
+    //lover순서 : 0w, 0h, 1w, 1h, 2w ...
+    for(int i = 0; i<m; i++)
+    {
+        int a, b;
+        char aa, bb;
+        scanf("%d %c %d %c", &a, &aa, &b, &bb);
+        aa == 'w' ? a = a*2 : a = a*2 + 1;
+        bb == 'w' ? b = b*2 : b = b*2 + 1;
+        lovers[a].push_back(b);
+        lovers[b].push_back(a);
+    }
+
+    //함의그래프 그리기
+    //1. 부부중 한 사람만 철수줄에 앉아야 함 (w||h); !w -> h, !h -> w
+    int couples = n*2;
+    for(int i = 0; i<couples; i+=2)
+    {
+        int w = i, h = w+1;
+        adj[2*w+1].push_back(2*h);      //!w->h
+        adj[2*h+1].push_back(2*w);      //!h->w
+        adj[2*w].push_back(2*h+1);      //w->!h
+        adj[2*h].push_back(2*w+1);      //h->!w
+    }
+
+    //2. 불륜관계는 둘 다 철수줄에 앉으면 안 된다. 적어도 하나는 보람줄. !(a&&a') => (!a||!a'); a->!a', a'->!a
+    for(int i = 0; i<lovers.size(); i++)
+    {
+        int l1 = i;
+        for(int j = 0; j<lovers[i].size(); j++)
+        {
+            int l2 = lovers[i][j];
+            adj[l1*2].push_back(l2*2+1);
+        }
+    }
+
+
+}
+
+
+//here에서 갈 수 있는 노드 중 가장 먼저 발견된 순서를 리턴한다
+//이미 scc로 묶인 노드는 신경안쓰고 패스한다
+int scc(int here)
+{
+    int ret = discovered[here] = nodeCounter++;
+    unlabeled.push(here);
+
+    //인접 노드 탐색
+    for(int there : adj[here])
+    {
+        //아직 탐색 안 했으면 보러가기. 트리 간선. 
+        if(discovered[there] == -1) ret = min(ret, scc(there));
+        //이미 봤고 scc로 안 묶였으면 같은 사이클이 될 수 있다
+        else if(sccID[there] == -1) ret = min(ret, discovered[there]);
+    }
+
+    // here이 scc사이클을 매듭짓는 노드라면 현재 노드와 자식들을 scc로 묶는다
+    if( discovered[here] == ret)
+    {
+        while(true)
+        {
+            int u = unlabeled.top();
+            sccID[u] = sccCounter;
+            unlabeled.pop();
+            if(u == here) break;
+        }
+        sccCounter++;
+    }
+    return ret;
+}
+
+//타잔 scc 알고리즘을 수행하고 그 결과를 리턴한다
+vector<int> tarjanSCC()
+{
+    unlabeled = stack<int>();
+    discovered = sccID = vector<int>(adj.size(), -1); 
+    sccCounter = nodeCounter = 0;
+    for(int i = 0; i<adj.size(); i++)
+        if(sccID[i] == -1) scc(i);
+    return sccID;
+}
+
+//2SAT문제를 해결하고 보람 옆에 앉는 정보를 저장한 벡터를 리턴한다
+//보람 옆에 앉을때 seat[n] = 0, 철수옆이면 1 저장
+vector<int> solve2SAT()
+{
+    vector<int> labels = tarjanSCC();           //labels순서 : 0w, !0w, 0h, !0h, 1w, !1w ...
+    vector<int> seats(adj.size()/2, -1);     //seats 순서 : 0w, 0h, 1w, 1h, 2w, 2h ...
+
+    //scc내에 있으면 오류 검사
+    for(int i = 0; i<labels.size(); i+=2)
+    {
+        //a와 !a가 같은 scc안에 있으면 오류! 빈 벡터를 반환한다.
+        if(labels[i] == labels[i+1]) return vector<int>(); 
+        //아내와 남편이 같은 scc안에 있으면 오류! 빈 벡터를 반환한다
+        if(i+2 < labels.size() && labels[i] == labels[i+2]) return vector<int>();
+    }
+
+    //sccid와 사람인덱스를 저장하고 위상정렬시킨다
+    vector<pair<int, int> > order;
+    for(int i = 0; i<labels.size(); i++) order.push_back({-labels[i],i});
+    sort(order.begin(), order.end());
+
+    //위상정렬된 벡터를 따라 사람을 앉힌다. 철수 옆에 앉으면 1, 보람옆은 0 저장
+    for(pair<int,int>& o : order)
+    {
+        int isNot = (o.second % 2);    //isNot이 1이면 !a. 0이면 a. (adj그래프에서)
+        int people = o.second / 2;    //adj 인덱스를 seats에 맞게 리사이즈한 사람 인덱스
+        //이미 앉혔으면 패스
+        if(seats[people] != -1) continue;
+        seats[people] = isNot;
+    }
+    return seats;
+}
+
+void printAnswer(vector<int>& seats)
+{
+    if(!seats.size()) printf("bad luck\n");
+    else
+    {
+        for(int i = 2; i<seats.size(); i++)
+        {
+            char c;
+            i % 2 == 0 ? c = 'w' : c = 'h'; 
+            //FIXME: seats[i]=1이면 철수줄에 앉는 것. ?? ow가 1이나와버리는디
+            if(seats[i]!=seats[0]) printf("%d%c ", i/2, c);
+            // printf("%d ", seats[i]);
+        }
+        printf("\n");
+        
+    }
+}
+
+int main()
+{
+    while(true)
+    {
+        int n, m;   // 커플수, 불륜 수
+        scanf("%d%d", &n, &m);
+        if(n==0 && m == 0) break;
+
+        makeGraph(n,m);
+        // printLovers();
+
+        vector<int> seats = solve2SAT();
+        printAnswer(seats);
+    }
+
+}
